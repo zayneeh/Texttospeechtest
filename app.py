@@ -15,7 +15,7 @@ st.title("Crop Disease Management Advisor")
 # Load the dataset
 @st.cache_data
 def load_data():
-    return pd.read_csv("crop_diseases.csv")
+    return pd.read_csv("disease_data.csv")
 
 data = load_data()
 
