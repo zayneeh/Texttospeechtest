@@ -6,7 +6,7 @@ import pandas as pd
 from gtts import gTTS
 from googletrans import Translator
 
-# Create a temporary directory to store audio files if it doesn't exist
+# Create a temporary directory to store audio files
 if not os.path.exists("temp"):
     os.mkdir("temp")
 
@@ -29,9 +29,9 @@ if data.empty:
 
 translator = Translator()
 
-# Including English plus the African languages you'd like to support
+# Languages
 supported_languages = [
-    "English",   # <-- Added English here
+    "English",   
     "Amharic",
     "Swahili",
     "Hausa",
