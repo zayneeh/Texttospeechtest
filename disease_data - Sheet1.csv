@@ -1,0 +1,60 @@
+Crop ,Crop Disease,Prevention,Causes ,Treatment
+Tomato ,Leaf Blight,Use disease-resistant varieties of tomatoes where available. Ensure good air circulation around plants by spacing them appropriately and pruning. Avoid overhead watering to minimize leaf wetness.,"This disease is caused by fungal pathogens such as Alternaria solani. The fungus thrives in warm, humid conditions and can persist in the soil or on infected plant debris",Treat with fungicides that are specifically labeled for control of Alternaria species. Infected plant parts should be removed and destroyed to prevent the spread of the disease.
+Tomato ,Leaf curl,"Grow plants under conditions that avoid stress and use silver reflective mulch to deter whiteflies, which can transmit viral diseases. Choose resistant varieties if they are available for your area.","Tomato leaf curl can be caused by several factors including viral infections, environmental stress (like wind damage, high temperatures, and water stress), or herbicide exposure.","For viral causes, there is no cure once a plant is infected. Remove and destroy infected plants to prevent the spread of the virus. For environmental or chemical causes, mitigate the stressors where possible.
+Prevention:"
+Tomato ,Septoria leaf spot,Practice crop rotation every three to four years. Avoid overhead irrigation and clean up plant debris at the end of the growing season.," Fall Armyworm
+
+Causes: This is a caterpillar that eats the leaves of maize plants. It can eat a lot and really hurt the crop.
+2. Grasshopper
+
+Causes: Grasshoppers eat the leaves of maize. They can eat a large amount, especially when there are many of them.
+3. Leaf Beetle
+
+Causes: 
+4. Leaf Blight
+
+Causes: A fungus that grows on the leaves, making them look burnt or blighted.
+5. Leaf Spot
+
+Causes: Caused by tiny fungi that create spots all over the leaves.
+6. Streak Virus
+
+Causes: A virus carried by tiny insects that causes streaks on maize leaves, making them less able to do photosynthesis.
+Cassava Diseases
+1. Bacterial Blight
+
+Causes: Bacteria infect cassava, causing the leaves to get spots and die, and can even rot the plant.
+2. Brown Spot
+
+Causes: A fungus makes brown spots on the leaves which can make the leaves fall off early.
+3. Green Mite
+
+Causes: Tiny spider-like creatures suck the sap from cassava leaves, making them turn pale and weak.
+4. Mosaic
+
+Causes: Viruses create a patchy pattern on the leaves that looks like a mosaic. This stunts the growth and reduces the cassava yield.
+Cashew Diseases
+1. Anthracnose
+
+Causes: A fungus that causes dark spots on leaves and fruits, which can ruin the cashew crop.
+2. Gummosis
+
+Causes: Often occurs when the tree gets a wound that then gets infected by a fungus, causing sap to leak out of the tree.
+","Apply fungicides containing chlorothalonil or mancozeb early in the season or as soon as the first signs of disease appear. Remove affected leaves to reduce fungal load and prevent spread.
+Prevention:                                  Many weeds harbor Septoria leaf spot, so weed your garden regularly. Avoid overhead watering, which can cause soil to splash onto plants and spread the disease. Help prevent the disease from returning year after year by removing and discarding tomato, pepper and eggplant plants immediately after they bear fruit,2 and by planting those crops in a different area of the garden each year."
+Tomato ,Verticulium wilt,"The most reliable form of prevention is to grow plant varieties that are resistant or immune to verticillium wilt. For example, some tomato varieties are specifically bred for resistance and are marked with a ""V"" on their tags. Certain species, like birch trees, naturally resist the disease, and it doesn’t affect conifers such as pines and spruces. In some regions, methods like soil fumigation or solarization with plastic covers can suppress the fungi responsible for the disease. It’s advisable to consult with local agricultural extensions for guidance on effective practices and resistant plant varieties suitable for your area. To avoid prolonging the presence of the disease in gardens, rotate crops and avoid planting susceptible varieties in the affected soil for at least four years. Always follow product labels and guidelines when applying any treatments.","Verticillium wilt is caused by soil-borne fungi that infect a wide range of plants including sunflowers, tomatoes, hops, lilacs, and maple trees. These fungi enter through the roots and obstruct the plant’s internal water, nutrient, and sap transport systems, leading to wilting and often premature death. The disease is particularly active in cool spring temperatures but may not show symptoms until later in the growing season.","Unfortunately, there is no effective cure for verticillium wilt once a plant is infected. For vegetables like tomatoes, the best approach is to remove and dispose of the affected plants entirely to prevent spread; these should not be composted. For landscape plants, pruning and disposing of infected branches can help manage the disease. Careful attention to the plant's watering needs and general care might extend its life but won't cure the disease.
+"
+Maize,Fall armyworm,,,
+Maize,grasshoper,,,
+Maize,leaf beetle,,Small beetles chew on maize leaves and can cause a lot of damage quickly.,
+Maize,leaf blight,,,
+Maize,leaf spot,,,
+Maize,streak virus,,,
+Cassava,bacterial blight,,,
+Cassava,brown spot,,,
+Cassava,green mite,,,
+Cassava,mosaic,,,
+Cashew,anthracnose,,,
+Cashew,gumosis,,,
+Cashew,leaf miner,,"Tiny insects lay eggs in the leaves, and the hatched larvae eat inside the leaves, creating tunnels.",
+Cashew,red rust,," A type of algae grows on the leaves and branches, making rusty-red patches that can weaken the plant.",
