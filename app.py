@@ -1,67 +1,152 @@
-
 import streamlit as st
 import os
 import time
 import glob
+import pandas as pd
 from gtts import gTTS
 from googletrans import Translator
-import pandas as pd 
 
-# Create a temporary directory to store audio files
+# Create a temporary directory to store audio files if it doesn't exist
 if not os.path.exists("temp"):
     os.mkdir("temp")
 
 st.title("Crop Disease Management Advisor")
 
-# Translator setup
+# Load the dataset
+@st.cache_data
+def load_data():
+    return pd.read_csv("crop_diseases.csv")
+
+data = load_data()
+
+# Initialize Translator
 translator = Translator()
 
-disease_data = pd.read_csv("disease_data.csv")
-# User inputs for the application
-crop = st.selectbox("Select a crop", list(disease_data.keys()))
-disease = st.selectbox("Select a disease", list(disease_data[crop].keys()))
+# Define African languages supported by Google Translate
+african_languages = [
+    "Amharic",
+    "Swahili",
+    "Hausa",
+    "Yoruba",
+    "Zulu",
+    "Igbo",
+    "Kinyarwanda",
+    "Shona",
+    "Somali",
+    "Xhosa",
+    "Sotho",
+    "Tswana",
+    "Chichewa",
+    "Oromo",
+    "Afrikaans",
+    "Malagasy"
+]
 
-# Translate to a selection of African languages
-input_language = "en"  # Assuming the data is initially in English
-out_lang = st.selectbox(
-    "Select your output language",
-    ["Amharic", "Swahili", "Hausa", "Yoruba", "Zulu"]
-)
-
-output_language = {
+# Map language names to language codes
+language_codes = {
+    "Afrikaans": "af",
     "Amharic": "am",
-    "Swahili": "sw",
+    "Chichewa": "ny",
     "Hausa": "ha",
+    "Igbo": "ig",
+    "Kinyarwanda": "rw",
+    "Malagasy": "mg",
+    "Oromo": "om",
+    "Shona": "sn",
+    "Somali": "so",
+    "Sotho": "st",
+    "Swahili": "sw",
+    "Tswana": "tn",
+    "Xhosa": "xh",
     "Yoruba": "yo",
     "Zulu": "zu"
-}[out_lang]
+}
 
-# Generate text summary of the disease management
-text = f"Disease: {disease}\nCauses: {disease_data[crop][disease]['causes']}\nPrevention: {disease_data[crop][disease]['prevention']}\nTreatment: {disease_data[crop][disease]['treatment']}"
+# Define English accents relevant to Africa
+english_accents = [
+    "Default",
+    "United Kingdom",
+    "South Africa"
+]
 
-def text_to_speech(input_language, output_language, text):
-    translation = translator.translate(text, src=input_language, dest=output_language)
-    trans_text = translation.text
-    tts = gTTS(trans_text, lang=output_language, slow=False)
-    file_name = f"{crop}_{disease}.mp3"
-    tts.save(f"temp/{file_name}")
-    return file_name, trans_text
+# User selects the crop
+crops = data["Crop"].unique()
+crop = st.selectbox("Select Crop", crops)
 
-display_output_text = st.checkbox("Display output text")
+# Filter diseases based on selected crop
+diseases = data["Crop Disease"].unique()
+disease = st.selectbox("Select Disease", diseases)
 
-if st.button("Convert to Speech"):
-    result, output_text = text_to_speech(input_language, output_language, text)
-    audio_file = open(f"temp/{result}", "rb")
-    audio_bytes = audio_file.read()
-    st.audio(audio_bytes, format="audio/mp3")
-    if display_output_text:
-        st.write(output_text)
+# Select output language
+out_lang = st.selectbox(
+    "Select your output language",
+    african_languages
+)
 
-# Clean up old audio files
-def remove_files():
+output_language = language_codes.get(out_lang, "en")  # Default to English if not found
+
+# Select English accent if English is chosen
+if out_lang == "English":
+    english_accent = st.selectbox(
+        "Select your English accent",
+        english_accents
+    )
+    if english_accent == "Default":
+        tld = "com"
+    elif english_accent == "United Kingdom":
+        tld = "co.uk"
+    elif english_accent == "South Africa":
+        tld = "co.za"
+else:
+    tld = "com"  # Default tld for non-English languages
+
+# Retrieve disease information
+disease_info = data[(data["Crop"] == crop) & (data["Crop Disease"] == disease)]
+
+if not disease_info.empty:
+    causes = disease_info.iloc[0]["Causes"]
+    prevention = disease_info.iloc[0]["Prevention"]
+    treatment = disease_info.iloc[0]["Treatment"]
+
+    # Generate the text to be converted to speech
+    text = f"Disease: {disease}\nCauses: {causes}\nPrevention: {prevention}\nTreatment: {treatment}"
+
+    def text_to_speech(output_language, text, tld):
+        try:
+            translation = translator.translate(text, dest=output_language)
+            trans_text = translation.text
+            tts = gTTS(trans_text, lang=output_language, tld=tld, slow=False)
+            # Generate a safe filename
+            safe_filename = f"{crop}_{disease}".replace(" ", "_")[:20] + ".mp3"
+            tts.save(f"temp/{safe_filename}")
+            return safe_filename, trans_text
+        except Exception as e:
+            st.error(f"Error in text-to-speech conversion: {e}")
+            return None, None
+
+    display_output_text = st.checkbox("Display output text")
+
+    if st.button("Convert to Speech"):
+        result, output_text = text_to_speech(output_language, text, tld)
+        if result:
+            audio_file = open(f"temp/{result}", "rb")
+            audio_bytes = audio_file.read()
+            st.markdown(f"## Your audio:")
+            st.audio(audio_bytes, format="audio/mp3", start_time=0)
+
+            if display_output_text:
+                st.markdown(f"## Output text:")
+                st.write(output_text)
+else:
+    st.error("No information available for the selected crop and disease.")
+
+# Function to remove old audio files
+def remove_files(n_days=7):
     now = time.time()
     for f in glob.glob("temp/*.mp3"):
-        if os.stat(f).st_mtime < now - 7 * 86400:  # 7 days old
+        if os.stat(f).st_mtime < now - n_days * 86400:
             os.remove(f)
+            print(f"Deleted {f}")
 
+# Clean up old files
 remove_files()
