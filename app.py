@@ -121,42 +121,51 @@ if not disease_info.empty:
     # Generate the text to be converted to speech
     text = f"Disease: {disease}\nCauses: {causes}\nPrevention: {prevention}\nTreatment: {treatment}"
 
+    # Define the TTS function
     def text_to_speech(output_language, text, tld):
         try:
+            # Translate the text
             translation = translator.translate(text, dest=output_language)
             trans_text = translation.text
+            # Convert to speech
             tts = gTTS(trans_text, lang=output_language, tld=tld, slow=False)
             # Generate a safe filename
-            safe_filename = f"{crop}_{disease}".replace(" ", "_")[:20] + ".mp3"
+            safe_filename = f"{crop}_{disease}".replace(" ", "_").replace("/", "_")[:20] + ".mp3"
             tts.save(f"temp/{safe_filename}")
             return safe_filename, trans_text
         except Exception as e:
             st.error(f"Error in text-to-speech conversion: {e}")
             return None, None
 
-    display_output_text = st.checkbox("Display output text")
-
-    if st.button("Convert to Speech"):
+    # Button to trigger TTS conversion
+    if st.button("🔊 Convert to Speech"):
         result, output_text = text_to_speech(output_language, text, tld)
         if result:
-            audio_file = open(f"temp/{result}", "rb")
-            audio_bytes = audio_file.read()
-            st.markdown(f"## Your audio:")
-            st.audio(audio_bytes, format="audio/mp3", start_time=0)
+            try:
+                with open(f"temp/{result}", "rb") as audio_file:
+                    audio_bytes = audio_file.read()
+                st.markdown(f"## 🎧 Your Audio:")
+                st.audio(audio_bytes, format="audio/mp3", start_time=0)
 
-            if display_output_text:
-                st.markdown(f"## Output text:")
-                st.write(output_text)
+                # Optionally display the translated text
+                if st.checkbox("📝 Display Output Text"):
+                    st.markdown(f"## 📝 Output Text:")
+                    st.write(output_text)
+            except Exception as e:
+                st.error(f"Error playing audio: {e}")
 else:
-    st.error("No information available for the selected crop and disease.")
+    st.error("❌ No information available for the selected crop and disease.")
 
 # Function to remove old audio files
 def remove_files(n_days=7):
     now = time.time()
     for f in glob.glob("temp/*.mp3"):
-        if os.stat(f).st_mtime < now - n_days * 86400:
-            os.remove(f)
-            print(f"Deleted {f}")
+        try:
+            if os.stat(f).st_mtime < now - n_days * 86400:
+                os.remove(f)
+                print(f"Deleted {f}")
+        except Exception as e:
+            print(f"Error deleting file {f}: {e}")
 
 # Clean up old files
 remove_files()
