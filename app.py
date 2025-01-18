@@ -12,13 +12,10 @@ if not os.path.exists("temp"):
 
 st.title("Crop Disease Management Advisor")
 
-# Load the dataset
-
 @st.cache_data
 def load_data():
     try:
         data = pd.read_csv("disease_data.csv")
-        # Clean column names by stripping whitespace and ensuring proper capitalization
         data.columns = [col.strip().title() for col in data.columns]
         return data
     except Exception as e:
@@ -29,11 +26,12 @@ data = load_data()
 
 if data.empty:
     st.stop()
-# Initialize Translator
+
 translator = Translator()
 
-# Define African languages supported by Google Translate
-african_languages = [
+# Including English plus the African languages you'd like to support
+supported_languages = [
+    "English",   # <-- Added English here
     "Amharic",
     "Swahili",
     "Hausa",
@@ -52,15 +50,16 @@ african_languages = [
     "Malagasy"
 ]
 
-# Map language names to language codes
+# Map language names to their codes for translation
 language_codes = {
+    "English": "en",     
     "Afrikaans": "af",
     "Amharic": "am",
     "Chichewa": "ny",
     "Hausa": "ha",
     "Igbo": "ig",
     "Kinyarwanda": "rw",
-    "Malagasy": "mg",
+    #"Malagasy": "mg",
     "Oromo": "om",
     "Shona": "sn",
     "Somali": "so",
@@ -68,7 +67,7 @@ language_codes = {
     "Swahili": "sw",
     "Tswana": "tn",
     "Xhosa": "xh",
-    "Yoruba": "yo",
+    #"Yoruba": "yo",
     "Zulu": "zu"
 }
 
@@ -79,28 +78,21 @@ english_accents = [
     "South Africa"
 ]
 
-# User selects the crop
+# 1. Let the user pick a crop
 crops = data["Crop"].unique()
 crop = st.selectbox("Select Crop", crops)
 
-# Filter diseases based on selected crop
-diseases = data["Crop Disease"].unique()
-disease = st.selectbox("Select Disease", diseases)
+# 2. Let the user pick a disease
+filtered_diseases = data[data["Crop"] == crop]["Crop Disease"].unique()
+disease = st.selectbox("Select Disease", filtered_diseases)
 
-# Select output language
-out_lang = st.selectbox(
-    "Select your output language",
-    african_languages
-)
-
+# 3. Let the user pick an output language
+out_lang = st.selectbox("Select your output language", supported_languages)
 output_language = language_codes.get(out_lang, "en")  # Default to English if not found
 
-# Select English accent if English is chosen
+# 4. If English is chosen, let the user pick an English accent
 if out_lang == "English":
-    english_accent = st.selectbox(
-        "Select your English accent",
-        english_accents
-    )
+    english_accent = st.selectbox("Select your English accent", english_accents)
     if english_accent == "Default":
         tld = "com"
     elif english_accent == "United Kingdom":
@@ -108,55 +100,61 @@ if out_lang == "English":
     elif english_accent == "South Africa":
         tld = "co.za"
 else:
-    tld = "com"  # Default tld for non-English languages
+    tld = "com"  # Default TLD for non-English languages
 
 # Retrieve disease information
 disease_info = data[(data["Crop"] == crop) & (data["Crop Disease"] == disease)]
-
 if not disease_info.empty:
     causes = disease_info.iloc[0]["Causes"]
     prevention = disease_info.iloc[0]["Prevention"]
     treatment = disease_info.iloc[0]["Treatment"]
 
-    # Generate the text to be converted to speech
-    text = f"Disease: {disease}\nCauses: {causes}\nPrevention: {prevention}\nTreatment: {treatment}"
+    # Here is the original text in English (from your dataset):
+    original_text = (
+        f"Disease: {disease}\n"
+        f"Causes: {causes}\n"
+        f"Prevention: {prevention}\n"
+        f"Treatment: {treatment}"
+    )
 
-    # Define the TTS function
-    def text_to_speech(output_language, text, tld):
+    # 5. Translate the text right away, so user can see the text
+    try:
+        translation_result = translator.translate(original_text, dest=output_language)
+        display_text = translation_result.text
+    except Exception as e:
+        st.error(f"Error translating text: {e}")
+        display_text = original_text
+
+    # Display the text (translated or original if out_lang == "English")
+    st.markdown("### Text Output:")
+    st.write(display_text)
+
+    # 6. TTS conversion
+    def text_to_speech(display_text, lang_code, tld):
         try:
-            # Translate the text
-            translation = translator.translate(text, dest=output_language)
-            trans_text = translation.text
-            # Convert to speech
-            tts = gTTS(trans_text, lang=output_language, tld=tld, slow=False)
-            # Generate a safe filename
+            tts = gTTS(display_text, lang=lang_code, tld=tld, slow=False)
             safe_filename = f"{crop}_{disease}".replace(" ", "_").replace("/", "_")[:20] + ".mp3"
             tts.save(f"temp/{safe_filename}")
-            return safe_filename, trans_text
+            return safe_filename
         except Exception as e:
             st.error(f"Error in text-to-speech conversion: {e}")
-            return None, None
+            return None
 
-    # Button to trigger TTS conversion
+    # Button for speech
     if st.button("🔊 Convert to Speech"):
-        result, output_text = text_to_speech(output_language, text, tld)
+        result = text_to_speech(display_text, output_language, tld)
         if result:
             try:
                 with open(f"temp/{result}", "rb") as audio_file:
                     audio_bytes = audio_file.read()
                 st.markdown(f"## 🎧 Your Audio:")
                 st.audio(audio_bytes, format="audio/mp3", start_time=0)
-
-                # Optionally display the translated text
-                if st.checkbox("📝 Display Output Text"):
-                    st.markdown(f"## 📝 Output Text:")
-                    st.write(output_text)
             except Exception as e:
                 st.error(f"Error playing audio: {e}")
 else:
     st.error("❌ No information available for the selected crop and disease.")
 
-# Function to remove old audio files
+# Cleanup old audio files
 def remove_files(n_days=7):
     now = time.time()
     for f in glob.glob("temp/*.mp3"):
@@ -167,5 +165,4 @@ def remove_files(n_days=7):
         except Exception as e:
             print(f"Error deleting file {f}: {e}")
 
-# Clean up old files
 remove_files()
