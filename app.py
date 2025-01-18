@@ -13,12 +13,22 @@ if not os.path.exists("temp"):
 st.title("Crop Disease Management Advisor")
 
 # Load the dataset
+
 @st.cache_data
 def load_data():
-    return pd.read_csv("disease_data.csv")
+    try:
+        data = pd.read_csv("disease_data.csv")
+        # Clean column names by stripping whitespace and ensuring proper capitalization
+        data.columns = [col.strip().title() for col in data.columns]
+        return data
+    except Exception as e:
+        st.error(f"Error loading data: {e}")
+        return pd.DataFrame()
 
 data = load_data()
 
+if data.empty:
+    st.stop()
 # Initialize Translator
 translator = Translator()
 
